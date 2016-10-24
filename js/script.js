@@ -48,8 +48,37 @@ class Task {
 		const task = document.createElement('li');
 		const title = document.createElement('h3');
 		const desc = document.createElement('p');
+		const close = document.createElement('span');
+		const left = document.createElement('span');
+		const right = document.createElement('span');
+		const top = document.createElement('span');
+		const bottom = document.createElement('span');
+
+		right.textContent = '›';
+		left.textContent = '‹';
+		top.textContent = '›';
+		bottom.textContent = '›';
+
+		right.classList.add('control--right');
+		left.classList.add('control--left');
+		top.classList.add('control--top');
+		bottom.classList.add('control--bottom');
+
+		right.classList.add('control');
+		left.classList.add('control');
+		top.classList.add('control');
+		bottom.classList.add('control');
+
+		close.textContent = '✖';
+		close.classList.add('close');
+
 		title.textContent = this.name;
 		desc.textContent = this.description;
+		task.appendChild(close);
+		task.appendChild(right);
+		task.appendChild(left);
+		task.appendChild(top);
+		task.appendChild(bottom);
 		task.appendChild(title);
 		task.appendChild(desc);
 		return task;
