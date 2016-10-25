@@ -34,6 +34,16 @@ class Board {
 			this.columns.push(new Column(this[status[el]]));
 			this.node.appendChild(this.columns[el].render());
 		}
+		const _node = this.node;
+		this.node.addEventListener('click', function (ev) {
+			const nodes = Array.from(_node.querySelectorAll('.close'));
+			console.log(ev.target)
+			if (nodes.indexOf(ev.target) >= 0) {
+				console.log(nodes.indexOf(ev.target));
+				const nodeToRemove = ev.target.parentElement;
+				nodeToRemove.parentElement.removeChild(nodeToRemove); 	
+			}
+		})
 	}
 }
 
@@ -124,6 +134,5 @@ n = new Board(test, '.board');
 console.log(n);
 
 
-k = new Column(test);
-console.log(k);
+
 
