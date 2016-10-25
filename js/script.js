@@ -54,31 +54,39 @@ class Task {
 		const top = document.createElement('span');
 		const bottom = document.createElement('span');
 
-		right.textContent = '›';
-		left.textContent = '‹';
-		top.textContent = '›';
+		if (this.order !== 0) {
+			top.textContent = '›';
+			top.classList.add('control--top');
+			top.classList.add('control');
+			task.appendChild(top);
+		}
+
+		if (this.status !== 'todo') {
+			left.textContent = '‹';
+			left.classList.add('control--left');
+			left.classList.add('control');
+			task.appendChild(left);
+		}
+
+		if (this.status !== 'done') {
+			right.textContent = '›';
+			right.classList.add('control--right');
+			right.classList.add('control');
+			task.appendChild(right);
+		}
+
 		bottom.textContent = '›';
-
-		right.classList.add('control--right');
-		left.classList.add('control--left');
-		top.classList.add('control--top');
 		bottom.classList.add('control--bottom');
-
-		right.classList.add('control');
-		left.classList.add('control');
-		top.classList.add('control');
 		bottom.classList.add('control');
+		task.appendChild(bottom);
 
 		close.textContent = '✖';
 		close.classList.add('close');
 
 		title.textContent = this.name;
 		desc.textContent = this.description;
+
 		task.appendChild(close);
-		task.appendChild(right);
-		task.appendChild(left);
-		task.appendChild(top);
-		task.appendChild(bottom);
 		task.appendChild(title);
 		task.appendChild(desc);
 		return task;
@@ -89,13 +97,13 @@ const test = [
  {
  	name: 'Red-Black Trees',
  	description: 'Решить задачу про черно-красные деревья',
- 	order: 1,
+ 	order: 0,
  	status: 'todo'
  },
  {
  	name: 'AVL Trees',
  	description: 'Решить задачу про АВЛ деревья',
- 	order: 2,
+ 	order: 1,
  	status: 'todo'
  },
  {
@@ -107,7 +115,7 @@ const test = [
  {
  	name: 'SublimeLinter',
  	description: 'install SublimeLinter',
- 	order: 1,
+ 	order: 0,
  	status: 'done'
  }
 ]
