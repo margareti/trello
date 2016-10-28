@@ -90,7 +90,7 @@ class Task {
 		bottom.classList.add('control');
 		task.appendChild(bottom);
 
-		close.textContent = '✖';
+		close.textContent = '×';
 		close.classList.add('close');
 
 		title.textContent = this.name;
