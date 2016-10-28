@@ -35,13 +35,15 @@ class Board {
 			this.node.appendChild(this.columns[el].render());
 		}
 		const _node = this.node;
+		console.log(this);
 		this.node.addEventListener('click', function (ev) {
 			const nodes = Array.from(_node.querySelectorAll('.close'));
 			console.log(ev.target)
 			if (nodes.indexOf(ev.target) >= 0) {
 				console.log(nodes.indexOf(ev.target));
 				const nodeToRemove = ev.target.parentElement;
-				nodeToRemove.parentElement.removeChild(nodeToRemove); 	
+				nodeToRemove.parentElement.removeChild(nodeToRemove); 
+
 			}
 		})
 	}
@@ -123,7 +125,7 @@ const test = [
  	status: 'inprogress'
  },
  {
- 	name: 'SublimeLinter',
+ 	name: 'SublimeLinter བོད་ཡིག',
  	description: 'install SublimeLinter',
  	order: 0,
  	status: 'done'
