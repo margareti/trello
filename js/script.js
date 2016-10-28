@@ -4,13 +4,17 @@ class Column {
 		for (let item in arr) {
 			this.list.push(new Task(arr[item]));
 		}
+
+		this.node = this.render()
+
 	}
 	render() {
-		const list = document.createElement('ul');
+		const elements = document.createElement('ul');
 		for (let el in this.list) {
-			list.appendChild(this.list[el].render());
+			elements.appendChild(this.list[el].render());
 		}
-		return list;
+
+		return elements;
 	}
 }
 
@@ -28,23 +32,25 @@ class Board {
 			this[arr[el].status].push(arr[el]);
 		}
 
-		this.columns = [];
+		this.columns = {};
 
 		for (let el in status) {
-			this.columns.push(new Column(this[status[el]]));
-			this.node.appendChild(this.columns[el].render());
-		}
-		const _node = this.node;
-		console.log(this);
-		this.node.addEventListener('click', function (ev) {
-			const nodes = Array.from(_node.querySelectorAll('.close'));
-			console.log(ev.target)
-			if (nodes.indexOf(ev.target) >= 0) {
-				console.log(nodes.indexOf(ev.target));
-				const nodeToRemove = ev.target.parentElement;
-				nodeToRemove.parentElement.removeChild(nodeToRemove); 
-
+			if (!this.columns[status]) {
+				this.columns[status] = [];
 			}
+			
+			this.columns[status].push(new Column(this[status[el]]));
+
+			this.node.appendChild(this.columns[status][el].render());
+		}
+
+		this.node.addEventListener('removeTask', (e) => {
+			console.log(e.detail);
+			// const removeIdx = this.columns[e.detail.status]//.indexOf(e.detail);
+			// console.log(this.columns[e.detail.status])
+			// this.columns[e.detail.status].splice(removeIdx, 1);
+			console.log(this.columns)
+			//return this.render();
 		})
 	}
 }
@@ -101,6 +107,19 @@ class Task {
 		task.appendChild(close);
 		task.appendChild(title);
 		task.appendChild(desc);
+
+
+
+		const event = new CustomEvent('removeTask', {
+			bubbles: true,
+			detail: this
+		});
+
+		close.addEventListener('click', function() {
+			this.dispatchEvent(event);
+		});
+
+
 		return task;
 	}
 }
