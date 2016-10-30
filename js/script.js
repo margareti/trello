@@ -15,13 +15,15 @@ class Column {
 	render() {
 		const div = document.createElement('div');
 		const title = document.createElement('h2');
-		let first = false;
-		let last = false;
+
 		
 	  title.textContent = this.map[this.index];
 
 		const list = document.createElement('ul');
 		for (let el = 0; el < this.list.length; el ++) {
+			let first = false;
+		  let last = false;
+
 			if (el === 0) {
 				first = true;
 			} 
@@ -41,40 +43,37 @@ class Board {
 
 		this.node = document.querySelector(node);
 
-		this.node.appendChild(this.addForm());
-
-		
 		this.list = [];
 		arr.forEach((el) => {
-			console.log(new Task(el))
-			this.list.push(new Task(el))
-		})
+			console.log(new Task(el));
+			this.list.push(new Task(el));
+		});
 
 
 		this.map = {
 			'todo': 0,
 			'inprogress': 1,
-			'done': 2
-		}
+			'done': 2,
+		};
 
 		this.node.addEventListener('removeTask', (e) => {
 	   console.log(e.detail);
 	   const index = this.list.indexOf(e.detail);
 	   this.list.splice(index, 1);
 	   this.render();
-	  })
+	  });
 
 	  this.node.addEventListener('moveUp', (e) => {
 	  	const index = this.list.indexOf(e.detail);
 	    e.detail.order -= 2;
 	    this.render();
-	  })
+	  });
 
 	  this.node.addEventListener('moveDown', (e) => {
 	  	const index = this.list.indexOf(e.detail);
 	    e.detail.order += 2;
 	    this.render();
-	  })
+	  });
 
 	  this.node.addEventListener('moveLeft', (e) => {
 	  	const index = this.list.indexOf(e.detail);
@@ -87,7 +86,9 @@ class Board {
 
 	  	e.detail.order =  this.getNewOrder(e.detail);
 	    this.render();	
-	  })
+	  });
+
+
 
 	  this.node.addEventListener('moveRight', (e) => {
 	  	const index = this.list.indexOf(e.detail);
@@ -100,7 +101,12 @@ class Board {
 	  	}
 	  	
 	  	e.detail.order = this.getNewOrder(e.detail);
-	    this.render();	
+	    this.render();
+	  });
+
+	  this.node.addEventListener('addEvent', (e) => {
+	  	this.list.push(new Task(e.detail));
+	  	this.render();
 	  })
 
 	  this.render();
@@ -109,8 +115,9 @@ class Board {
 	render() {
 		this.columns = [[], [], []];
 		this.node.innerHTML = '';
-		
+
 		this.list.forEach((el) => {
+			console.log(el);
 			this.columns[this.map[el.status]].push(el);
 		})
 
@@ -122,26 +129,21 @@ class Board {
 			this.node.appendChild(taskList.render());
 
 		})
+		this.node.appendChild(this.addForm());
 	}
 
 	getNewOrder(el) {
 		const columnLength = this.columns[this.map[el.status]].length;
-		console.log("column array ", this.columns[this.map[el.status]])
-		console.log("column length is ", columnLength);
   	let lastElOrder;
   	if (columnLength > 0) {
   		this.columns[this.map[el.status]].sort((a, b) => {
   			return a.order - b.order;
   		})
   		lastElOrder = this.columns[this.map[el.status]][columnLength - 1].order;
-  		console.log('lastElOrder before incrementing ', lastElOrder);
-  		console.log("last element is ", this.columns[this.map[el.status]][columnLength - 1])
   		lastElOrder += 1;
   	} else {
   		lastElOrder = 0;
   	}
-  	console.log('last el order is ', lastElOrder)
-  	console.log('for ', el);
   	return lastElOrder;
 	}
 	createInput(type, name, required, inputClass, placeholder) {
@@ -155,9 +157,9 @@ class Board {
   }
   addForm() {
     const status = {
-      todo: 'To Do',
-      inprogress: 'In Progress',
-      done: 'Done',
+      'todo': 'To Do',
+      'inprogress': 'In Progress',
+      'done': 'Done',
     };
 
     const wrap = document.createElement('div');
@@ -177,6 +179,7 @@ class Board {
     const label2 = document.createElement('label');
     const numberInput = this.createInput('number', 'task-order', true, '', '0');
     numberInput.min = 0;
+    numberInput.value = 0;
 
     label1.textContent = 'Status';
     label2.textContent = 'Order';
@@ -190,16 +193,39 @@ class Board {
 
     statusKeys.forEach((el) => {
       const option = document.createElement('option');
-      option.textContent = statusKeys[el];
+      option.textContent = el;
       option.value = el;
+
       select.appendChild(option);
     });
+    select.value = 'todo';
+    let newTaskData = {};
+
+  	const addEvent = new CustomEvent('addEvent', {
+    	bubbles: true,
+    	detail: newTaskData,
+    })
+
+  
+    submit.addEventListener('click', function () {
+    	newTaskData.name = title.value;
+    	newTaskData.description = textarea.value;
+    	newTaskData.order = parseInt(numberInput.value);
+    	newTaskData.status = select.value;
+
+    	console.log(newTaskData);
+    	if (newTaskData.name) {
+    		console.log(newTaskData);
+    		this.dispatchEvent(addEvent);
+    	}
+    })
 
     fieldset1.appendChild(label1);
     fieldset1.appendChild(select);
     fieldset2.appendChild(label2);
     fieldset2.appendChild(numberInput);
     inner.appendChild(fieldset1);
+    inner.appendChild(fieldset2);
 
 
     wrap.appendChild(title);
@@ -226,6 +252,7 @@ class Task {
 		const right = document.createElement('span');
 		const top = document.createElement('span');
 		const bottom = document.createElement('span');
+
 		if (!first) {
 			top.textContent = '›';
 			top.classList.add('control--top');
