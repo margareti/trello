@@ -41,6 +41,8 @@ class Board {
 
 		this.node = document.querySelector(node);
 
+		this.node.appendChild(this.addForm());
+
 		
 		this.list = [];
 		arr.forEach((el) => {
@@ -142,6 +144,70 @@ class Board {
   	console.log('for ', el);
   	return lastElOrder;
 	}
+	createInput(type, name, required, inputClass, placeholder) {
+    const input = document.createElement('input');
+    input.type = type;
+    input.name = name;
+    input.placeholder = placeholder;
+
+    input.required = required;
+    return input;
+  }
+  addForm() {
+    const status = {
+      todo: 'To Do',
+      inprogress: 'In Progress',
+      done: 'Done',
+    };
+
+    const wrap = document.createElement('div');
+    wrap.classList.add('input');
+    const title = this.createInput('text', 'task-name', true, 'text-input', 'Task name');
+    title.classList.add('text-input');
+    const submit = this.createInput('submit', 'task-submit', true, 'text-input');
+    submit.classList.add('text-input');
+    submit.value = 'Add to List!';
+
+    const inner = document.createElement('div');
+    inner.classList.add('input-flex');
+    const fieldset1 = document.createElement('fieldset');
+    const fieldset2 = document.createElement('fieldset');
+
+    const label1 = document.createElement('label');
+    const label2 = document.createElement('label');
+    const numberInput = this.createInput('number', 'task-order', true, '', '0');
+    numberInput.min = 0;
+
+    label1.textContent = 'Status';
+    label2.textContent = 'Order';
+
+    const select = document.createElement('select');
+    const statusKeys = Object.keys(status);
+    const textarea = document.createElement('textarea');
+    textarea.classList.add('text-input');
+    textarea.name = 'task-desc';
+    textarea.placeholder = 'Task description';
+
+    statusKeys.forEach((el) => {
+      const option = document.createElement('option');
+      option.textContent = statusKeys[el];
+      option.value = el;
+      select.appendChild(option);
+    });
+
+    fieldset1.appendChild(label1);
+    fieldset1.appendChild(select);
+    fieldset2.appendChild(label2);
+    fieldset2.appendChild(numberInput);
+    inner.appendChild(fieldset1);
+
+
+    wrap.appendChild(title);
+    wrap.appendChild(inner);
+    wrap.appendChild(textarea);
+    wrap.appendChild(submit);
+    return wrap;
+  }
 }
 
 class Task {

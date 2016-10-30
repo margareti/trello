@@ -83,15 +83,10 @@ body {
 .input {
     max-width: 400px;
     margin: 0 auto;
+    border: 5px dashed cornflowerblue;
 }
-.input fieldset {
-	display: block;
-	border: 1px solid cornflowerblue;
-    margin-bottom: 10px;
-    
-}
-.input input, 
-.input textarea {
+
+.text-input {
     display: block;
     width: 100%;
     border: none;
@@ -99,22 +94,54 @@ body {
     padding: 10px;
     font-family: Open Sans, sans-serif;
 }
-.input input:focus,
-.input textarea:focus {
+.text-input:focus {
 	outline: none;
 }
-
+input[type="submit"] {
+	font-weight: 700;
+	transition: 0.5s;
+	cursor: pointer;
+}
+input[type="submit"]:hover {
+	background: cornflowerblue;
+	color: #fafafa;
+}
 .input textarea {
 	resize: none;
 }
-.fieldset-padding label {
+.input-flex {
+	display: flex;
+}
+.input-flex > fieldset {
+	width: 50%;
+}
+.input-flex label {
     display: inline-block;
     width: 70px;
     padding: 10px;
     box-sizing: border-box;
+    color: #333;
 }
-.fieldset-padding label + *{
+.input-flex label + *{
     display: inline-block;
     width: calc(100% - 80px);
 }
 
+.input-flex input, 
+.input-flex input:focus {
+	border: none;
+	outline: none;
+}
+
+.input ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: #333;
+}
+.input ::-moz-placeholder { /* Firefox 19+ */
+  color: #333;
+}
+.input :-ms-input-placeholder { /* IE 10+ */
+   color: #333;
+}
+.input :-moz-placeholder { /* Firefox 18- */
+   color: #333;
+}
