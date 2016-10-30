@@ -5,13 +5,38 @@
     <title>Todo</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=cyrillic" rel="stylesheet">
-    <link rel="stylesheet" href="css/reset.css">
+
+    <link rel="stylesheet" type="text/css" href="css/reset.min.css">
+
     <link rel="stylesheet" href="css/style.css">
 
   </head>
   <body>
     <h2 class="title">ToDo List</h2>
     <div class="board"></div>
+    <div class="input">
+      <fieldset>
+        <input type="text" name="task-name" placeholder="Task name">
+      </fieldset>
+      <fieldset>
+        <textarea type="text" name="task-desc" placeholder="Task description"></textarea>
+      </fieldset>
+      <fieldset class="fieldset-padding">
+        <label>Status</label>
+        <select>
+          <option value="todo">To do</option>
+          <option value="inprogress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </fieldset>
+      <fieldset class="fieldset-padding">
+        <label>Order</label>
+        <input type="number" name="task-order" min="0" placeholder="0">
+      </fieldset>
+      <fieldset>
+        <input type="submit" class="task-submit" value="Add to List!" name="task-submit">
+      </fieldset>
+    </div>
     <script src="js/script.js"></script>
   </body>
 </html>
