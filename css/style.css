@@ -9,6 +9,7 @@ body {
    padding: 10px;
    margin: 0 auto;
    justify-content: space-between;
+   flex-wrap: wrap;
 }
 .board > * {
 	width: 30%;
@@ -36,6 +37,7 @@ body {
 	display: inline-block;
 	cursor: pointer;
 	opacity: 0;
+	font-size: 30px;
 	transition:0.5s;
 }
 .board li:hover .close {
@@ -46,7 +48,7 @@ body {
 	font-size: 60px;
 	opacity: 0;
 	cursor: pointer;
-	color: blue;
+	color: cornflowerblue
 }
 .board li:hover .control {
 	opacity: 1;
@@ -71,4 +73,78 @@ body {
     left: 47%;
     transform: translateX(-50%) rotate(-90deg);
     top: -40px;
+}
+.board h2 {
+    text-align: center;
+    color: cornflowerblue;
+    text-transform: capitalize;
+    border-bottom: 1px solid cornflowerblue;
+    padding: 6px;
+}
+.input {
+    max-width: 400px;
+    margin: 0 auto;
+    border: 5px dashed cornflowerblue;
+        align-self: center;
+    width: 100%;
+}
+
+.text-input {
+    display: block;
+    width: 100%;
+    border: none;
+    box-sizing: border-box;
+    padding: 10px;
+    font-family: Open Sans, sans-serif;
+}
+.text-input:focus {
+	outline: none;
+}
+input[type="submit"] {
+	font-weight: 700;
+	transition: 0.5s;
+	cursor: pointer;
+}
+input[type="submit"]:hover {
+	background: cornflowerblue;
+	color: #fafafa;
+}
+.input textarea {
+	resize: none;
+}
+.input-flex {
+	display: flex;
+}
+.input-flex > fieldset {
+	width: 50%;
+}
+.input-flex label {
+    display: inline-block;
+    width: 70px;
+    padding: 10px;
+    box-sizing: border-box;
+    color: #333;
+}
+.input-flex label + *{
+    display: inline-block;
+    width: calc(100% - 80px);
+}
+
+.input-flex input, 
+.input-flex input:focus {
+	border: none;
+	outline: none;
+}
+
+.input ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: #333;
+}
+.input ::-moz-placeholder { /* Firefox 19+ */
+  color: #333;
+}
+.input :-ms-input-placeholder { /* IE 10+ */
+   color: #333;
+}
+.input :-moz-placeholder { /* Firefox 18- */
+   color: #333;
 }
