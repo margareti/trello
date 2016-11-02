@@ -28,8 +28,20 @@ class Column {
       }
       list.appendChild(this.list[el].render(first, last));
     }
+
+
+
     div.appendChild(title);
     div.appendChild(list);
+    $(div).droppable({
+      drop: function drop(event, ui) {
+        const drag = new CustomEvent('drag', {
+          bubbles: true,
+          detail: ui,
+        });
+        this.dispatchEvent(drag);
+      },
+    });
     return div;
   }
 }
@@ -73,6 +85,29 @@ class Board {
       e.detail.order = this.getNewOrder(e.detail);
       this.render();
     });
+
+
+    this.node.addEventListener('drag', (e) => {
+    	console.log(e.detail);
+    	const colWidthPx = window.getComputedStyle(this.node.querySelector('ul')).width;
+    	const colWidth = parseInt(colWidthPx, 10);
+    	const offset = parseInt(e.detail.position.left / colWidth, 10);
+    	console.log("offset ", offset);
+
+    	const dragEl = e.detail.draggable.context;
+    	const dragParent = dragEl.parentElement;
+    	const colIdx = Array.from(this.node.childNodes).indexOf(dragParent.parentElement);
+    	const elIdx = Array.from(dragParent.childNodes).indexOf(dragEl);
+
+    	
+    	dragParent.removeChild(dragEl);
+
+    	this.node.childNodes[colIdx + offset].appendChild(dragEl);
+    	$(e.detail).droppable('destroy');
+    	console.log(dragParent);
+    	console.log(colIdx);
+    	console.log(elIdx);
+    })
 
     this.node.addEventListener('moveRight', (e) => {
       if (e.detail.status === 'todo') {
@@ -306,6 +341,7 @@ class Task {
     bottom.addEventListener('click', function down() {
       this.dispatchEvent(moveDown);
     });
+    $(task).draggable();
     return task;
   }
 }
@@ -346,3 +382,5 @@ const test = [{
     status: 'done',
   },
 ];
+const board = new Board(test, '.board');
+
