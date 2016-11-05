@@ -28,9 +28,6 @@ class Column {
       }
       list.appendChild(this.list[el].render(first, last));
     }
-
-
-
     div.appendChild(title);
     div.appendChild(list);
     $(div).droppable({
@@ -39,6 +36,7 @@ class Column {
           bubbles: true,
           detail: ui,
         });
+        console.log('dropped');
         this.dispatchEvent(drag);
       },
     });
@@ -59,6 +57,7 @@ class Board {
       inprogress: 1,
       done: 2,
     };
+    this.mapReverse = ['todo', 'inprogress', 'done'];
 
     this.node.addEventListener('removeTask', (e) => {
       const index = this.list.indexOf(e.detail);
@@ -88,25 +87,21 @@ class Board {
 
 
     this.node.addEventListener('drag', (e) => {
-    	console.log(e.detail);
-    	const colWidthPx = window.getComputedStyle(this.node.querySelector('ul')).width;
-    	const colWidth = parseInt(colWidthPx, 10);
-    	const offset = parseInt(e.detail.position.left / colWidth, 10);
-    	console.log("offset ", offset);
+      const colWidthPx = window.getComputedStyle(this.node.querySelector('ul')).width;
+      const colWidth = parseInt(colWidthPx, 10);
+      const offset = parseInt(e.detail.position.left / colWidth, 10);
 
-    	const dragEl = e.detail.draggable.context;
-    	const dragParent = dragEl.parentElement;
-    	const colIdx = Array.from(this.node.childNodes).indexOf(dragParent.parentElement);
-    	const elIdx = Array.from(dragParent.childNodes).indexOf(dragEl);
-
-    	
-    	dragParent.removeChild(dragEl);
-
-    	this.node.childNodes[colIdx + offset].appendChild(dragEl);
-    	$(e.detail).droppable('destroy');
-    	console.log(dragParent);
-    	console.log(colIdx);
-    	console.log(elIdx);
+      const dragEl = e.detail.draggable.context;
+      const dragParent = dragEl.parentElement;
+      const colIdx = Array.from(this.node.childNodes).indexOf(dragParent.parentElement);
+      const newElIdx = Array.from(this.node.childNodes[colIdx + offset].querySelector('ul').children).length;
+      console.log(Array.from(this.node.childNodes[colIdx + offset].querySelector('ul').children));
+      console.log('new idx ', newElIdx);
+      
+      const reference = this.matchID(dragEl.id);
+      reference.status = this.mapReverse[colIdx + offset];
+      reference.order = newElIdx;
+      this.render();
     })
 
     this.node.addEventListener('moveRight', (e) => {
@@ -124,6 +119,16 @@ class Board {
       this.render();
     });
     this.render();
+  }
+
+  matchID(itemId) {
+    let result;
+    this.list.forEach((el) => {
+      if (el.id === itemId) {
+        result = el;
+      }
+    })
+    return result;
   }
 
   render() {
@@ -245,6 +250,7 @@ class Board {
 
 class Task {
   constructor(obj) {
+    this.id = "el_" + new Date().getTime().toString() + (Math.floor(Math.random() * 1000));
     this.name = obj.name;
     this.description = obj.description;
     this.order = obj.order;
@@ -291,7 +297,8 @@ class Task {
 
     close.textContent = '×';
     close.classList.add('close');
-
+    task.id = this.id;
+    task.dataset.order = this.order;
     title.textContent = this.name;
     desc.textContent = this.description;
 
@@ -364,16 +371,16 @@ const test = [{
     status: 'inprogress',
   },
  //  {
- // 	name: '5.1',
- // 	description: 'Finish the assignment',
- // 	order: 1,
- // 	status: 'inprogress'
+ //   name: '5.1',
+ //   description: 'Finish the assignment',
+ //   order: 1,
+ //   status: 'inprogress'
  // },
  //   {
- // 	name: 'Irregular verbs App',
- // 	description: 'Rewrite app in angular',
- // 	order: 2,
- // 	status: 'inprogress'
+ //   name: 'Irregular verbs App',
+ //   description: 'Rewrite app in angular',
+ //   order: 2,
+ //   status: 'inprogress'
  // },
   {
     name: 'SublimeLinter',
