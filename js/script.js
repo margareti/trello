@@ -12,7 +12,17 @@ const TaskView = Backbone.View.extend({
     var tmpl = _.template(this.template);
     this.$el.html(tmpl(this.model.toJSON()));
     return this;
-  }
+  },
+});
+
+const ColumnView = Backbone.View.extend({
+  tagName: 'div',
+  template: _.template($('#list-column').html()),
+  render: function(title) {
+    const tmp = this.template({title: title})
+    this.$el.html(tmp);
+    return this;
+  },
 });
 
 const Board = Backbone.Collection.extend({
@@ -20,26 +30,34 @@ const Board = Backbone.Collection.extend({
 });
 
 const BoardView = Backbone.View.extend({
-  tagName: 'div',
-  className: 'board-inner',
-  template: _.template('<p>TOTO</p>'),
+  el: '.board',
+  // template: _.template($('#list-item').html()),
+  initialize: function() {
+    this.render();
+  },
   render: function() {
-    $(this.el).html(this.template());
-    return this;
+    this.$el.html('');
+    const columns = [{
+      title: 'To Do',
+      id: 0,
+    }, {
+      title: 'In progress',
+      id: 1,
+    }, {
+      title: 'Done',
+      id: 2,
+    }];
+
+    columns.forEach(x => {
+      const column = new ColumnView();
+      this.$el.append(column.render(x.title).el);
+      console.log(column.render(x.title).el);
+    })
+    
   },
 });
 
 
-
-const ColumnView = Backbone.View.extend({
-  tagName: 'div',
-  template: $('list-column').html(),
-  render: function() {
-    var tmpl = _.template(this.template);
-    this.$el.html(tmpl(this.model.toJSON()));
-    return this;
-  }
-});
 
 const test = [{
   name: 'Red-Black Trees',
@@ -65,7 +83,8 @@ const test = [{
     status: 'done',
   },
 ];
-const board = new Board(test);
+// const board = new Board(test);
+// const view = new BoardView();
+// view.render();
+// const task = new TaskView();
 const view = new BoardView();
-view.render();
-const task = new TaskView();
