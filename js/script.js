@@ -1,35 +1,45 @@
+const Task = Backbone.Model.extend({
+  defaults: {
+    name: 'New Task Title',
+    description: 'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+  },
+});
 
+const TaskView = Backbone.View.extend({
+  tagName: 'li',
+  template:$('#list-item').html(),
+  render: function() {
+    var tmpl = _.template(this.template);
+    this.$el.html(tmpl(this.model.toJSON()));
+    return this;
+  }
+});
 
-var Board = Backbone.Collection.extend({
+const Board = Backbone.Collection.extend({
   model: Task,
 });
-var BoardView = Backbone.View.extend({
-  tagName: "div",
-  className: "board",
-  template: _.template(''),
+
+const BoardView = Backbone.View.extend({
+  tagName: 'div',
+  className: 'board-inner',
+  template: _.template('<p>TOTO</p>'),
   render: function() {
     $(this.el).html(this.template());
     return this;
-  }
+  },
 });
 
-var Task = Backbone.Model.extend({
-  defaults: {
-    name: "New Task Title",
-    description: "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
-  }
-});
-var TaskView = Backbone.View.extend({
-  tagName: 'li',
-  // template: $('list-item').html(),
+
+
+const ColumnView = Backbone.View.extend({
+  tagName: 'div',
+  template: $('list-column').html(),
   render: function() {
-    // var tmpl = _.template(this.template);
-    // this.$el.html(tmpl(this.model.toJSON()));
+    var tmpl = _.template(this.template);
+    this.$el.html(tmpl(this.model.toJSON()));
     return this;
   }
 });
-
-var ColumnView = Backbone.View.extend({});
 
 const test = [{
   name: 'Red-Black Trees',
@@ -58,3 +68,4 @@ const test = [{
 const board = new Board(test);
 const view = new BoardView();
 view.render();
+const task = new TaskView();
