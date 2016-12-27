@@ -1,51 +1,5 @@
 const app = {};
-app.board = [];
 
-const Task = Backbone.Model.extend({
-  defaults: {
-    name: 'Sample Title',
-    description: 'Sample description',
-  },
-});
-
-const TaskView = Backbone.View.extend({
-  tagName: 'li',
-  template:_.template($('#list-item').html()),
-  initialize: function(options) {
-    this.model = options;
-    this.render();
-  },
-  render: function(item) {
-    this.$el.html(this.template({name: this.model.name, description: this.model.description}));
-    return this;
-  },
-});
-const Column = Backbone.Collection.extend({
-  model: Task,
-});
-
-const ColumnView = Backbone.View.extend({
-  template: _.template($('#list-column').html()),
-  initialize: function(options) {
-    this.model = options;
-    
-  },
-  render: function() {
-    const tmp = this.template({title: this.model.title});
-    this.$el.html(tmp);
-    this.$list = this.$('ul');
-    this.model.tasks.forEach(x => {
-      console.log("list ", this.$list)
-      var task = new TaskView(x);
-      this.$list.append(task.render().el);
-    });
-    return this;
-  },
-});
-
-const Board = Backbone.Collection.extend({
-  model: Task,
-});
 
 const columns = {
   todo: {
@@ -62,18 +16,148 @@ const columns = {
   },
 };
 
+const Task = Backbone.Model.extend({
+  defaults: {
+    name: 'Sample Title',
+    description: 'Sample description',
+  },
+  setStatus: function(status, direction) {
+    var current = columns[status].id;
+    if (direction === 'right') {
+      current++;
+
+    } else if (direction === 'left') {
+      current--;
+    }
+    return Object.keys(columns).filter(function(item) {
+      return columns[item].id === current;
+    })[0];
+
+  },
+  moveRight: function() {
+    this.set({
+      status: this.setStatus(this.get('status'), 'right'),
+    });
+  },
+  moveLeft: function() {
+    this.set({
+      status: this.setStatus(this.get('status'), 'left'),
+    });
+  },
+  moveUp: function() {
+    this.set({
+      order: this.get('order') - 2,
+    });
+  },
+  moveDown: function() {
+    this.set({
+      order: this.get('order') + 2,
+    });
+  },
+  delete: function() {
+
+  },
+
+});
+
+const TaskView = Backbone.View.extend({
+  tagName: 'li',
+  template:_.template($('#list-item').html()),
+  events: {
+    'click .close': 'delete',
+    'click .control--left': 'moveLeft',
+    'click .control--top': 'moveUp',
+    'click .control--right': 'moveRight',
+    'click .control--bottom': 'moveDown',
+  },
+
+  initialize: function(options) {
+    this.model = options;
+    this.render();
+    this.listenTo(this.model, 'change', this.change);
+  },
+  render: function(item) {
+    this.$el.html(this.template(this.model.attributes));
+    return this;
+  },
+  delete: function del() {
+    this.model.delete();
+  },
+  moveLeft: function left() {
+    this.model.moveLeft();
+  },
+  moveUp: function top() {
+    this.model.moveUp();
+  },
+  moveRight: function right() {
+    this.model.moveRight();
+  },
+  moveDown: function down() {
+    this.model.moveDown();
+  },
+  change: function () {
+    console.log("taskView registers model change")
+  }
+});
+const ColumnModel = Backbone.Model.extend({});
+
+const Column = Backbone.Collection.extend({
+  model: ColumnModel,
+});
+
+const ColumnView = Backbone.View.extend({
+  template: _.template($('#list-column').html()),
+  initialize: function(options) {
+    this.model = options;
+    this.listenTo(this.model.tasks, 'change', this.change);
+  },
+  render: function() {
+    const tmp = this.template({title: this.model.title});
+    this.$el.html(tmp);
+    this.$list = this.$('ul');
+
+    this.model.tasks = this.model.tasks.sort(function sort(a, b) {
+      return a.attributes.order - b.attributes.order;
+    });
+    this.model.tasks.forEach(x => {
+      var task = new TaskView(x);
+      this.$list.append(task.render().el);
+    });
+    return this;
+  },
+  change: function() {
+    console.log("columnView registers change");
+  }
+});
+
+const Board = Backbone.Collection.extend({
+  model: Task,
+  initialize: function() {
+    // this.on( "change:status", this.statusChange, this);
+    console.log("init Board ", this);
+
+  },
+  statusChange: function() {
+    console.log("Board collection registers change");
+  }
+});
+
+
 const BoardView = Backbone.View.extend({
   el: '.board',
   initialize: function(options) {
     this.model = options;
     this.render();
+    this.listenTo(this.model, 'change', this.change);
+    console.log("board model ", this.model)
   },
+  
   render: function() {
     this.model.forEach(x => {
       if (!columns[x.status].tasks) {
         columns[x.status].tasks = [];
       }
-      columns[x.status].tasks.push(x);
+      columns[x.status].tasks.push(new Task(x));
     });
 
     var columnKeys = Object.keys(columns);
@@ -82,12 +166,15 @@ const BoardView = Backbone.View.extend({
       this.$el.append(column.render().el);
     });
   },
+  change: function() {
+    console.log("board view change on model change")
+  }
 });
 
 const tasks = [{
   name: 'Red-Black Trees',
   description: 'Do red-back trees assignment',
-  order: 0,
+  order: 2,
   status: 'todo' },
   {
     name: 'AVL Trees',
@@ -109,4 +196,5 @@ const tasks = [{
   },
 ];
 
-var board = new BoardView(tasks);
+var board = new Board(tasks);
+var boardView = new BoardView(board);
