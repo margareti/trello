@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Todo</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=cyrillic" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="css/reset.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone.js"></script>
+  </head>
+  <body>
+    <h2 class="title">ToDo List</h2>
+    <div class="board"></div>
+
+    
+    <script type="text/template" id="list-item">
+      <span class="control--right control">›</span>
+      <span class="control--bottom control">›</span>
+      <span class="control--left control">‹</span>
+      <span class="control--top control">›</span>
+      <span class="close">×</span>
+      <h3><%= name %></h3>
+      <p><%= description %></p>
+    </script>
+    <script type="text/template" id="list-column">
+      <h2><%= title %></h2>
+      <ul></ul>
+    </script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
