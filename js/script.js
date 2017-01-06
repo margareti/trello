@@ -1,5 +1,3 @@
-const app = {};
-
 
 const columns = {
   todo: {
@@ -16,49 +14,7 @@ const columns = {
   },
 };
 
-const Task = Backbone.Model.extend({
-  defaults: {
-    name: 'Sample Title',
-    description: 'Sample description',
-  },
-  setStatus: function(status, direction) {
-    var current = columns[status].id;
-    if (direction === 'right') {
-      current++;
-
-    } else if (direction === 'left') {
-      current--;
-    }
-    return Object.keys(columns).filter(function(item) {
-      return columns[item].id === current;
-    })[0];
-
-  },
-  moveRight: function() {
-    this.set({
-      status: this.setStatus(this.get('status'), 'right'),
-    });
-  },
-  moveLeft: function() {
-    this.set({
-      status: this.setStatus(this.get('status'), 'left'),
-    });
-  },
-  moveUp: function() {
-    this.set({
-      order: this.get('order') - 2,
-    });
-  },
-  moveDown: function() {
-    this.set({
-      order: this.get('order') + 2,
-    });
-  },
-  delete: function() {
-
-  },
-
-});
+const Task = Backbone.Model.extend();
 
 const TaskView = Backbone.View.extend({
   tagName: 'li',
@@ -71,103 +27,127 @@ const TaskView = Backbone.View.extend({
     'click .control--bottom': 'moveDown',
   },
 
-  initialize: function(options) {
-    this.model = options;
+  initialize: function() {
+    this.listenTo(this.model, 'destroy', this.remove);
     this.render();
-    this.listenTo(this.model, 'change', this.change);
   },
+  setStatus: function(status, direction) {
+    let current = columns[status].id;
+    if (direction === 'right') {
+      current++;
+    } else if (direction === 'left') {
+      current--;
+    }
+    return Object.keys(columns).filter(function(item) {
+      return columns[item].id === current;
+    })[0];
+  },
+
   render: function(item) {
     this.$el.html(this.template(this.model.attributes));
     return this;
   },
-  delete: function del() {
-    this.model.delete();
+  delete: function() {
+    console.log("delete");
+    this.model.destroy();
   },
-  moveLeft: function left() {
-    this.model.moveLeft();
+  moveUp: function() {
+    this.model.set({
+      order: this.model.get('order') - 2,
+    });
+    console.log(this.model);
   },
-  moveUp: function top() {
-    this.model.moveUp();
+  moveDown: function() {
+    this.model.set({
+      order: this.model.get('order') + 2,
+    });
+    console.log(this.model)
   },
-  moveRight: function right() {
-    this.model.moveRight();
+  moveLeft: function() {
+    this.model.set({
+      status: this.setStatus(this.model.get('status'), 'left'),
+    });
   },
-  moveDown: function down() {
-    this.model.moveDown();
-  },
-  change: function () {
-    console.log("taskView registers model change")
+  moveRight: function() {
+    this.model.set({
+      status: this.setStatus(this.model.get('status'), 'right'),
+    });
   }
-});
-const ColumnModel = Backbone.Model.extend({});
-
-const Column = Backbone.Collection.extend({
-  model: ColumnModel,
 });
 
 const ColumnView = Backbone.View.extend({
   template: _.template($('#list-column').html()),
-  initialize: function(options) {
-    this.model = options;
-    this.listenTo(this.model.tasks, 'change', this.change);
+  initialize: function() {
+    console.log(this.model)
+    this.render();
   },
   render: function() {
-    const tmp = this.template({title: this.model.title});
+
+    let tmp = this.template(this.model);
     this.$el.html(tmp);
     this.$list = this.$('ul');
 
     this.model.tasks = this.model.tasks.sort(function sort(a, b) {
       return a.attributes.order - b.attributes.order;
     });
+
     this.model.tasks.forEach(x => {
-      var task = new TaskView(x);
+      const task = new TaskView({model: x});
       this.$list.append(task.render().el);
     });
     return this;
   },
-  change: function() {
-    console.log("columnView registers change");
-  }
 });
 
 const Board = Backbone.Collection.extend({
   model: Task,
-  initialize: function() {
-    // this.on( "change:status", this.statusChange, this);
-    console.log("init Board ", this);
-
-  },
-  statusChange: function() {
-    console.log("Board collection registers change");
-  }
+  comparator: 'order',
 });
 
 
 const BoardView = Backbone.View.extend({
   el: '.board',
   initialize: function(options) {
-    this.model = options;
-    this.render();
-    this.listenTo(this.model, 'change', this.change);
-    console.log("board model ", this.model)
+    this.listenTo(board, 'change', this.clear);
+    this.render()
   },
-  
+
   render: function() {
-    this.model.forEach(x => {
-      if (!columns[x.status].tasks) {
-        columns[x.status].tasks = [];
+    const result = [];
+    const columnKeys = Object.keys(columns);
+
+
+    columnKeys.forEach(x => {
+      columns[x].tasks = [];
+    })
+
+    //sort tasks
+    this.collection.forEach(x => {
+      if (!columns[x.attributes.status].tasks) {
+        columns[x.attributes.status].tasks = [];
       }
-      columns[x.status].tasks.push(new Task(x));
+      columns[x.attributes.status].tasks.push(x);
     });
 
-    var columnKeys = Object.keys(columns);
     columnKeys.forEach(x => {
-      var column = new ColumnView(columns[x]);
+      let item = {
+        title: x,
+        tasks: columns[x].tasks,
+      };
+      result.push(item);
+      let column = new ColumnView({model: item});
       this.$el.append(column.render().el);
     });
   },
   change: function() {
-    console.log("board view change on model change")
+    console.log("board view change on model change");
+    
+  },
+  clear: function() {
+    this.$el.html('');
+
+    this.render();
+    console.log(this)
   }
 });
 
@@ -196,5 +176,6 @@ const tasks = [{
   },
 ];
 
-var board = new Board(tasks);
-var boardView = new BoardView(board);
+
+const board = new Board(tasks);
+const boardView = new BoardView({collection: board});
