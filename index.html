@@ -20,10 +20,18 @@
 
     
     <script type="text/template" id="list-item">
-      <span class="control--right control">›</span>
-      <span class="control--bottom control">›</span>
-      <span class="control--left control">‹</span>
-      <span class="control--top control">›</span>
+      <% if (id !== 0) { %>
+        <span class="control--left control">‹</span>
+      <% } %>
+      <% if (!maxRight) { %>
+        <span class="control--right control">›</span>
+      <% } %>
+      <% if (!last) { %>
+        <span class="control--bottom control">›</span>
+      <% } %>
+      <% if (ord !== 0) { %>
+        <span class="control--top control">›</span>
+      <% } %>
       <span class="close">×</span>
       <h3><%= name %></h3>
       <p><%= description %></p>

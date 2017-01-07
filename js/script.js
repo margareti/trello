@@ -27,7 +27,12 @@ const TaskView = Backbone.View.extend({
     'click .control--bottom': 'moveDown',
   },
 
-  initialize: function() {
+  initialize: function(options) {
+    this.idx = options.idx;
+    this.ord = options.ord;
+    this.last = options.last;
+
+    this.maxRight = this.idx === Object.keys(columns).length - 1;
     this.listenTo(this.model, 'destroy', this.remove);
     this.render();
   },
@@ -44,7 +49,15 @@ const TaskView = Backbone.View.extend({
   },
 
   render: function(item) {
-    this.$el.html(this.template(this.model.attributes));
+    this.$el.html(this.template({
+      title: this.model.attributes.title, 
+      name: this.model.attributes.name, 
+      description: this.model.attributes.description, 
+      id: this.idx,
+      maxRight: this.maxRight,
+      ord: this.ord,
+      last: this.last,
+    }));
     return this;
   },
   delete: function() {
@@ -77,12 +90,15 @@ const TaskView = Backbone.View.extend({
 
 const ColumnView = Backbone.View.extend({
   template: _.template($('#list-column').html()),
-  initialize: function() {
+  initialize: function(options) {
+    this.colIdx = options.idx;
+    
     console.log(this.model)
+    console.log(options.idx)
     this.render();
   },
   render: function() {
-
+    const column = this;
     let tmp = this.template(this.model);
     this.$el.html(tmp);
     this.$list = this.$('ul');
@@ -91,9 +107,10 @@ const ColumnView = Backbone.View.extend({
       return a.attributes.order - b.attributes.order;
     });
 
-    this.model.tasks.forEach(x => {
-      const task = new TaskView({model: x});
-      this.$list.append(task.render().el);
+    this.model.tasks.forEach(function(el, index) {
+      const task = new TaskView({model: el, idx: column.colIdx, ord: index, last: index === column.model.tasks.length - 1});
+      console.log("col view task ", task)
+      column.$list.append(task.render().el);
     });
     return this;
   },
@@ -108,7 +125,7 @@ const Board = Backbone.Collection.extend({
 const BoardView = Backbone.View.extend({
   el: '.board',
   initialize: function(options) {
-    this.listenTo(board, 'change', this.clear);
+    this.listenTo(board, 'change', this.render);
     this.render()
   },
 
@@ -116,12 +133,11 @@ const BoardView = Backbone.View.extend({
     const result = [];
     const columnKeys = Object.keys(columns);
 
-
+    this.$el.html('');
     columnKeys.forEach(x => {
       columns[x].tasks = [];
     })
 
-    //sort tasks
     this.collection.forEach(x => {
       if (!columns[x.attributes.status].tasks) {
         columns[x.attributes.status].tasks = [];
@@ -135,19 +151,9 @@ const BoardView = Backbone.View.extend({
         tasks: columns[x].tasks,
       };
       result.push(item);
-      let column = new ColumnView({model: item});
+      let column = new ColumnView({model: item, idx: columns[x].id});
       this.$el.append(column.render().el);
     });
-  },
-  change: function() {
-    console.log("board view change on model change");
-    
-  },
-  clear: function() {
-    this.$el.html('');
-
-    this.render();
-    console.log(this)
   }
 });
 
