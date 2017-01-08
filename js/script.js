@@ -101,7 +101,7 @@ const Board = Backbone.Collection.extend({
     this.on('moveLeft', this.moveLeft);
     this.on('moveUp', this.moveUp);
     this.on('moveRight', this.moveRight);
-    this.on('addEvent', this.add);
+    this.on('addEvent', this.addEvent);
   },
   setStatus: function(status, direction) {
     let current = columns[status].id;
@@ -159,10 +159,11 @@ const BoardView = Backbone.View.extend({
     this.render()
   },
   events: {
-    'click #add': 'addEvent'
+    'click .add': 'addEvent'
   },
   addEvent: function() {
-    this.trigger('addEvent')
+    this.trigger('addEvent');
+    console.log("should have triggered event")
   },
   template: _.template($('#input').html()),
   render: function() {
