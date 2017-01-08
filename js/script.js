@@ -31,21 +31,8 @@ const TaskView = Backbone.View.extend({
     this.idx = options.idx;
     this.ord = options.ord;
     this.last = options.last;
-
     this.maxRight = this.idx === Object.keys(columns).length - 1;
-    this.listenTo(this.model, 'destroy', this.remove);
     this.render();
-  },
-  setStatus: function(status, direction) {
-    let current = columns[status].id;
-    if (direction === 'right') {
-      current++;
-    } else if (direction === 'left') {
-      current--;
-    }
-    return Object.keys(columns).filter(function(item) {
-      return columns[item].id === current;
-    })[0];
   },
 
   render: function(item) {
@@ -60,41 +47,27 @@ const TaskView = Backbone.View.extend({
     }));
     return this;
   },
-  delete: function() {
-    console.log("delete");
-    this.model.destroy();
-  },
-  moveUp: function() {
-    this.model.set({
-      order: this.model.get('order') - 2,
-    });
-    console.log(this.model);
-  },
-  moveDown: function() {
-    this.model.set({
-      order: this.model.get('order') + 2,
-    });
-    console.log(this.model)
+  delete: function(){
+    this.model.trigger('delete', this.model);
   },
   moveLeft: function() {
-    this.model.set({
-      status: this.setStatus(this.model.get('status'), 'left'),
-    });
+    this.model.trigger('moveLeft', this.model);
   },
-  moveRight: function() {
-    this.model.set({
-      status: this.setStatus(this.model.get('status'), 'right'),
-    });
-  }
+  moveDown: function() {
+    this.model.trigger('moveDown', this.model);
+  },
+  moveRight: function () {
+    this.model.trigger('moveRight', this.model);
+  },
+  moveUp: function() {
+    this.model.trigger('moveUp', this.model);
+  },
 });
 
 const ColumnView = Backbone.View.extend({
   template: _.template($('#list-column').html()),
   initialize: function(options) {
     this.colIdx = options.idx;
-    
-    console.log(this.model)
-    console.log(options.idx)
     this.render();
   },
   render: function() {
@@ -102,14 +75,17 @@ const ColumnView = Backbone.View.extend({
     let tmp = this.template(this.model);
     this.$el.html(tmp);
     this.$list = this.$('ul');
-
     this.model.tasks = this.model.tasks.sort(function sort(a, b) {
       return a.attributes.order - b.attributes.order;
     });
 
     this.model.tasks.forEach(function(el, index) {
-      const task = new TaskView({model: el, idx: column.colIdx, ord: index, last: index === column.model.tasks.length - 1});
-      console.log("col view task ", task)
+      const task = new TaskView({
+        model: el, 
+        idx: column.colIdx, 
+        ord: index, 
+        last: index === column.model.tasks.length - 1
+      });
       column.$list.append(task.render().el);
     });
     return this;
@@ -119,6 +95,60 @@ const ColumnView = Backbone.View.extend({
 const Board = Backbone.Collection.extend({
   model: Task,
   comparator: 'order',
+  initialize: function() {
+    this.on('delete', this.delete);
+    this.on('moveDown', this.moveDown);
+    this.on('moveLeft', this.moveLeft);
+    this.on('moveUp', this.moveUp);
+    this.on('moveRight', this.moveRight);
+    this.on('addEvent', this.add);
+  },
+  setStatus: function(status, direction) {
+    let current = columns[status].id;
+    if (direction === 'right') {
+      current++;
+    } else if (direction === 'left') {
+      current--;
+    }
+    return Object.keys(columns).filter(function(item) {
+      return columns[item].id === current;
+    })[0];
+  },
+  getLastOrder: function(colName) {
+    const result = this.where({status: colName});
+    console.log(result.length)
+    return result.length;
+  },
+  addEvent: function() {
+    console.log("add")
+  },
+  delete: function(obj) {
+    console.log("delete");
+    console.log(obj)
+    obj.destroy();
+  },
+  moveUp: function(obj) {
+    obj.set({
+      order: obj.get('order') - 2,
+    });
+  },
+  moveDown: function(obj) {
+    obj.set({
+      order: obj.get('order') + 2,
+    });
+  },
+  moveLeft: function(obj) {
+    obj.set({
+      status: this.setStatus(obj.get('status'), 'left'),
+      order: this.getLastOrder(this.setStatus(obj.get('status'), 'left'))
+    });
+  },
+  moveRight: function(obj) {
+    obj.set({
+      status: this.setStatus(obj.get('status'), 'right'),
+      order: this.getLastOrder(this.setStatus(obj.get('status'), 'right'))
+    });
+  }
 });
 
 
@@ -128,7 +158,13 @@ const BoardView = Backbone.View.extend({
     this.listenTo(board, 'change', this.render);
     this.render()
   },
-
+  events: {
+    'click #add': 'addEvent'
+  },
+  addEvent: function() {
+    this.trigger('addEvent')
+  },
+  template: _.template($('#input').html()),
   render: function() {
     const result = [];
     const columnKeys = Object.keys(columns);
@@ -154,6 +190,7 @@ const BoardView = Backbone.View.extend({
       let column = new ColumnView({model: item, idx: columns[x].id});
       this.$el.append(column.render().el);
     });
+    this.$el.append(this.template);
   }
 });
 
