@@ -34,7 +34,17 @@ const TaskView = Backbone.View.extend({
     this.maxRight = this.idx === Object.keys(columns).length - 1;
     this.render();
   },
+  getVerticalOffset: function(items, offset) {
+    let total = 0;
+    for (var i = items.length - 1; i >= 0; i--) {
+      //start counting at item order
+      //either up or down depending on if offset is positive or negative
+      //add up total to the item until total + currentItem is less/more (depending on direction) than offset
+      //return index, which will be the new position of the item
 
+      //based on the new position, change the order of the items in the column. 
+    }
+  },
   render: function(item) {
     const _this = this;
     this.$el.html(this.template({
