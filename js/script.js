@@ -48,11 +48,8 @@ const TaskView = Backbone.View.extend({
     }));
     this.$el.draggable({
       stop: function() {
-        console.log("dropped");
         const colWidth = $('ul').width();
         const offset = Math.round(parseInt(_this.$el.css('left'), 10) / colWidth);
-        console.log(colWidth);
-        console.log(offset)
         _this.model.trigger('drag', _this.model, offset);
       }
     });
