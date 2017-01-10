@@ -95,13 +95,15 @@ const ColumnView = Backbone.View.extend({
 const Board = Backbone.Collection.extend({
   model: Task,
   comparator: 'order',
-  initialize: function() {
+  initialize: function(options) {
+    console.log("options ", options)
     this.on('delete', this.delete);
     this.on('moveDown', this.moveDown);
     this.on('moveLeft', this.moveLeft);
     this.on('moveUp', this.moveUp);
     this.on('moveRight', this.moveRight);
-    this.on('addEvent', this.addEvent);
+    // this.on('addEvent', this.addEvent);
+    this.listenTo(BoardView, 'addEvent', this.addEvent);
   },
   setStatus: function(status, direction) {
     let current = columns[status].id;
@@ -154,15 +156,16 @@ const Board = Backbone.Collection.extend({
 
 const BoardView = Backbone.View.extend({
   el: '.board',
-  initialize: function(options) {
-    this.listenTo(board, 'change', this.render);
+  initialize: function() {
+    this.listenTo(board, 'all', this.render);
     this.render()
   },
   events: {
     'click .add': 'addEvent'
   },
   addEvent: function() {
-    this.trigger('addEvent');
+    // this.collection.trigger('addEvent');
+    this.trigger('addEvent')
     console.log("should have triggered event")
   },
   template: _.template($('#input').html()),
