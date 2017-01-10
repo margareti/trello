@@ -49,8 +49,17 @@ const TaskView = Backbone.View.extend({
     this.$el.draggable({
       stop: function() {
         const colWidth = $('ul').width();
-        const offset = Math.round(parseInt(_this.$el.css('left'), 10) / colWidth);
-        _this.model.trigger('drag', _this.model, offset);
+        const offsetLeft = Math.round(parseInt(_this.$el.css('left'), 10) / colWidth);
+        const offsetTop = Math.round(parseInt(_this.$el.css('top'), 10));
+        const column = _this.$el.parent();
+        const children = column.children();
+        let items = [];
+        items = children.map(function() {
+          return $(this).outerHeight(true);
+        });
+        console.log(items);
+        console.log(offsetTop);
+        _this.model.trigger('drag', _this.model, offsetLeft, offsetTop);
       }
     });
     return this;
@@ -159,20 +168,25 @@ const Board = Backbone.Collection.extend({
   moveLeft: function(obj) {
     obj.set({
       status: this.setStatus(obj.get('status'), 'left'),
-      order: this.getLastOrder(this.setStatus(obj.get('status'), 'left'))
+      order: this.getLastOrder(this.setStatus(obj.get('status'), 'left')),
     });
   },
   moveRight: function(obj) {
     obj.set({
       status: this.setStatus(obj.get('status'), 'right'),
-      order: this.getLastOrder(this.setStatus(obj.get('status'), 'right'))
+      order: this.getLastOrder(this.setStatus(obj.get('status'), 'right')),
     });
   },
-  dragEvent: function(obj, offset) {
-    obj.set({
-      status: this.setStatus(obj.get('status'), offset),
-      order: this.getLastOrder(this.setStatus(obj.get('status'), offset))
-    })
+  dragEvent: function(obj, left, top) {
+    if (left) {
+      obj.set({
+        status: this.setStatus(obj.get('status'), left),
+        order: this.getLastOrder(this.setStatus(obj.get('status'), left)),
+      });
+    } else {
+      console.log("top is ", top);
+      console.log(this.where({status: obj.get('status')}))
+    }
   }
 });
 
@@ -181,10 +195,10 @@ const BoardView = Backbone.View.extend({
   el: '.board',
   initialize: function() {
     this.listenTo(board, 'all', this.render);
-    this.render()
+    this.render();
   },
   events: {
-    'click .add': 'addEvent'
+    'click .add': 'addEvent',
   },
   addEvent: function() {
     this.collection.trigger('addEvent');
