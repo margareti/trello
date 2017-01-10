@@ -102,8 +102,7 @@ const Board = Backbone.Collection.extend({
     this.on('moveLeft', this.moveLeft);
     this.on('moveUp', this.moveUp);
     this.on('moveRight', this.moveRight);
-    // this.on('addEvent', this.addEvent);
-    this.listenTo(BoardView, 'addEvent', this.addEvent);
+    this.on('addEvent', this.addEvent);
   },
   setStatus: function(status, direction) {
     let current = columns[status].id;
@@ -118,11 +117,22 @@ const Board = Backbone.Collection.extend({
   },
   getLastOrder: function(colName) {
     const result = this.where({status: colName});
-    console.log(result.length)
+    console.log(colName, result.length)
     return result.length;
   },
   addEvent: function() {
-    console.log("add")
+    const collection = this;
+    const status = $('#newTaskStatus').val();
+    const title = $('#newTaskTitle').val();
+    const desc = $('#newTaskDesc').val();
+    if (!desc || !title || !desc) return false;
+    const newTask = {
+      status: status,
+      name: title,
+      description: desc,
+      order: collection.getLastOrder(status),
+    };
+    this.add(newTask);
   },
   delete: function(obj) {
     console.log("delete");
@@ -164,9 +174,7 @@ const BoardView = Backbone.View.extend({
     'click .add': 'addEvent'
   },
   addEvent: function() {
-    // this.collection.trigger('addEvent');
-    this.trigger('addEvent')
-    console.log("should have triggered event")
+    this.collection.trigger('addEvent');
   },
   template: _.template($('#input').html()),
   render: function() {
@@ -201,12 +209,12 @@ const BoardView = Backbone.View.extend({
 const tasks = [{
   name: 'Red-Black Trees',
   description: 'Do red-back trees assignment',
-  order: 2,
+  order: 1,
   status: 'todo' },
   {
     name: 'AVL Trees',
     description: 'Also do the AVL Trees algorithm task',
-    order: 1,
+    order: 0,
     status: 'todo',
   },
   {

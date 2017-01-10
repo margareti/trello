@@ -42,23 +42,19 @@
     </script>
     <script type="text/template" id="input">
       <div class="input">
-        <input type="text" name="task-name" placeholder="Task name" required="" class="text-input">
+        <input type="text" name="task-name" placeholder="Task name" id="newTaskTitle" required class="text-input">
         <div class="input-flex">
           <fieldset>
             <label>Status</label>
-            <select>
+            <select required id="newTaskStatus">
               <option value="todo">todo</option>
               <option value="inprogress">inprogress</option>
               <option value="done">done</option>
             </select>
           </fieldset>
- <!--          <fieldset>
-            <label>Order</label>
-            <input type="number" name="task-order" placeholder="0" required="" min="0">
-          </fieldset> -->
         </div>
-        <textarea class="text-input" name="task-desc" placeholder="Task description"></textarea>
-        <input type="submit" name="task-submit" placeholder="undefined" required="" class="text-input add" value="Add to List!">
+        <textarea id="newTaskDesc" class="text-input" name="task-desc" placeholder="Task description"></textarea>
+        <input type="submit" name="task-submit" required class="text-input add" value="Add to List!">
       </div>
     </script>
     <script src="js/script.js"></script>
