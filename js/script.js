@@ -36,6 +36,7 @@ const TaskView = Backbone.View.extend({
   },
 
   render: function(item) {
+    const _this = this;
     this.$el.html(this.template({
       title: this.model.attributes.title, 
       name: this.model.attributes.name, 
@@ -45,6 +46,16 @@ const TaskView = Backbone.View.extend({
       ord: this.ord,
       last: this.last,
     }));
+    this.$el.draggable({
+      stop: function() {
+        console.log("dropped");
+        const colWidth = $('ul').width();
+        const offset = Math.round(parseInt(_this.$el.css('left'), 10) / colWidth);
+        console.log(colWidth);
+        console.log(offset)
+        _this.model.trigger('drag', _this.model, offset);
+      }
+    });
     return this;
   },
   delete: function(){
@@ -95,14 +106,14 @@ const ColumnView = Backbone.View.extend({
 const Board = Backbone.Collection.extend({
   model: Task,
   comparator: 'order',
-  initialize: function(options) {
-    console.log("options ", options)
+  initialize: function() {
     this.on('delete', this.delete);
     this.on('moveDown', this.moveDown);
     this.on('moveLeft', this.moveLeft);
     this.on('moveUp', this.moveUp);
     this.on('moveRight', this.moveRight);
     this.on('addEvent', this.addEvent);
+    this.on('drag', this.dragEvent);
   },
   setStatus: function(status, direction) {
     let current = columns[status].id;
@@ -110,6 +121,8 @@ const Board = Backbone.Collection.extend({
       current++;
     } else if (direction === 'left') {
       current--;
+    } else {
+      current += direction;
     }
     return Object.keys(columns).filter(function(item) {
       return columns[item].id === current;
@@ -117,7 +130,6 @@ const Board = Backbone.Collection.extend({
   },
   getLastOrder: function(colName) {
     const result = this.where({status: colName});
-    console.log(colName, result.length)
     return result.length;
   },
   addEvent: function() {
@@ -135,8 +147,6 @@ const Board = Backbone.Collection.extend({
     this.add(newTask);
   },
   delete: function(obj) {
-    console.log("delete");
-    console.log(obj)
     obj.destroy();
   },
   moveUp: function(obj) {
@@ -160,6 +170,12 @@ const Board = Backbone.Collection.extend({
       status: this.setStatus(obj.get('status'), 'right'),
       order: this.getLastOrder(this.setStatus(obj.get('status'), 'right'))
     });
+  },
+  dragEvent: function(obj, offset) {
+    obj.set({
+      status: this.setStatus(obj.get('status'), offset),
+      order: this.getLastOrder(this.setStatus(obj.get('status'), offset))
+    })
   }
 });
 
@@ -229,8 +245,7 @@ const tasks = [{
     order: 0,
     status: 'done',
   },
-];
-
+];  
 
 const board = new Board(tasks);
 const boardView = new BoardView({collection: board});
